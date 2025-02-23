@@ -21,6 +21,10 @@ const linuxSha256 =
 */
 
 export async function run(): Promise<void> {
+  core.info(
+    'nuXmv can be used only for non-commercial or academic purposes. https://nuxmv.fbk.eu/license.html for details'
+  )
+
   let name: string
   if (process.platform === 'win32') {
     name = winName
