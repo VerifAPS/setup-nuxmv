@@ -1,7 +1,7 @@
 {
   "name": "setup-nuxmv",
   "description": "Setup nuXmv for use in actions",
-  "version": "v0.1.0",
+  "version": "v0.1.2",
   "author": "Alexander Weigl",
   "type": "module",
   "private": true,

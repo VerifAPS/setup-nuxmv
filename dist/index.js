@@ -29816,34 +29816,55 @@ function requireToolCache () {
 
 var toolCacheExports = requireToolCache();
 
-const baseUrl = 'https://nuxmv.fbk.eu/theme/download.php?file=';
-const windowsUrl = baseUrl + 'nuXmv-2.1.0-win64.7z';
-const linuxUrl = baseUrl + 'nuXmv-2.1.0-linux64.tar.xz';
-const macosUrl = baseUrl + 'nuXmv-2.1.0-macos-universal.tar.xz';
+const baseUrl = 'https://nuxmv.fbk.eu/downloads/';
+const winName = 'nuXmv-2.1.0-win64';
+const linuxName = 'nuXmv-2.1.0-linux64';
+const macosName = 'nuXmv-2.1.0-macos-universal';
+const windowsUrl = baseUrl + winName + '.7z';
+const linuxUrl = baseUrl + linuxName + '.tar.xz';
+const macosUrl = baseUrl + macosName + '.tar.xz';
+/*
+const macosSha256 =
+  'dc0a1710f0ae9f36e16238d40b35dcf66f823d357013bd2e74c09f6e9b9c6dd5'
+const winSha256 =
+  'ad1f0f1df931eb274da21f1fbebee4ba1949ef5c1718650b84ba82cf2e579f1f'
+const linuxSha256 =
+  'c7dfec43749bcb230c857efe81099b95d868b94efd9f81bccebe542a306a7c83'
+*/
 async function run() {
-    // first find if nuXmv is already installed
-    const toolPath = toolCacheExports.find('nuXmv', '2.1.0');
-    if (toolPath) {
-        coreExports.addPath(toolPath + '/bin');
-        return;
-    }
-    // here we need to download and extract nuXmv
-    let folder;
+    coreExports.info('nuXmv can be used only for non-commercial or academic purposes. https://nuxmv.fbk.eu/license.html for details');
+    let name;
     if (process.platform === 'win32') {
-        const download = await toolCacheExports.downloadTool(windowsUrl);
-        folder = await toolCacheExports.extract7z(download, 'nuxmv');
+        name = winName;
     }
     else if (process.platform === 'darwin') {
-        const download = await toolCacheExports.downloadTool(macosUrl);
-        folder = await toolCacheExports.extractXar(download, 'nuxmv');
+        name = macosName;
     }
     else {
-        const download = await toolCacheExports.downloadTool(linuxUrl);
-        folder = await toolCacheExports.extractTar(download, 'nuxmv');
+        name = linuxName;
     }
-    // add it to the cache
-    const cachedPath = await toolCacheExports.cacheDir(folder, 'nuXmv', '2.1.0');
-    coreExports.addPath(cachedPath + '/bin');
+    // first find if nuXmv is already installed
+    let toolPath = toolCacheExports.find('nuXmv', '2.1.0');
+    if (!toolPath) {
+        // here we need to download and extract nuXmv
+        if (process.platform === 'win32') {
+            const download = await toolCacheExports.downloadTool(windowsUrl);
+            toolPath = await toolCacheExports.extract7z(download, 'nuxmv');
+        }
+        else if (process.platform === 'darwin') {
+            const download = await toolCacheExports.downloadTool(macosUrl);
+            toolPath = await toolCacheExports.extractTar(download, 'nuxmv');
+        }
+        else {
+            const download = await toolCacheExports.downloadTool(linuxUrl);
+            toolPath = await toolCacheExports.extractTar(download, 'nuxmv', 'xJ');
+        }
+        // add it to the cache
+        toolPath = await toolCacheExports.cacheDir(toolPath, 'nuXmv', '2.1.0');
+    }
+    const path = `${toolPath}/${name}/bin`;
+    coreExports.addPath(path);
+    coreExports.debug(`nuXmv installed to ${path}`);
 }
 
 /**
