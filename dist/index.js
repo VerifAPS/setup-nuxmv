@@ -60870,29 +60870,19 @@ function extract7z(file, dest, _7zPath) {
         const originalCwd = process.cwd();
         process.chdir(dest);
         {
-            const escapedScript = path
-                .join(__dirname, '..', 'scripts', 'Invoke-7zdec.ps1')
-                .replace(/'/g, "''")
-                .replace(/"|\n|\r/g, ''); // double-up single quotes, remove double quotes and newlines
-            const escapedFile = file.replace(/'/g, "''").replace(/"|\n|\r/g, '');
-            const escapedTarget = dest.replace(/'/g, "''").replace(/"|\n|\r/g, '');
-            const command = `& '${escapedScript}' -Source '${escapedFile}' -Target '${escapedTarget}'`;
-            const args = [
-                '-NoLogo',
-                '-Sta',
-                '-NoProfile',
-                '-NonInteractive',
-                '-ExecutionPolicy',
-                'Unrestricted',
-                '-Command',
-                command
-            ];
-            const options = {
-                silent: true
-            };
             try {
-                const powershellPath = yield which('powershell', true);
-                yield exec(`"${powershellPath}"`, args, options);
+                const logLevel = isDebug() ? '-bb1' : '-bb0';
+                const args = [
+                    'x', // eXtract files with full paths
+                    logLevel, // -bb[0-3] : set output log level
+                    '-bd', // disable progress indicator
+                    '-sccUTF-8', // set charset for for console input/output
+                    file
+                ];
+                const options = {
+                    silent: true
+                };
+                yield exec(`"${_7zPath}"`, args, options);
             }
             finally {
                 process.chdir(originalCwd);
@@ -61175,7 +61165,7 @@ async function run() {
         // here we need to download and extract nuXmv
         if (process.platform === 'win32') {
             const download = await downloadTool(windowsUrl);
-            toolPath = await extract7z(download, 'nuxmv');
+            toolPath = await extract7z(download, 'nuxmv', '7z');
         }
         else if (process.platform === 'darwin') {
             const download = await downloadTool(macosUrl);

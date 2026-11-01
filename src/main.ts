@@ -40,7 +40,7 @@ export async function run(): Promise<void> {
     // here we need to download and extract nuXmv
     if (process.platform === 'win32') {
       const download = await tc.downloadTool(windowsUrl)
-      toolPath = await tc.extract7z(download, 'nuxmv')
+      toolPath = await tc.extract7z(download, 'nuxmv', '7z')
     } else if (process.platform === 'darwin') {
       const download = await tc.downloadTool(macosUrl)
       toolPath = await tc.extractTar(download, 'nuxmv')
